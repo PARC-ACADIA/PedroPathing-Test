@@ -843,6 +843,7 @@ class PredictiveBrakingTuner extends OpMode {
         if (gamepad1.b) {
             stopRobot();
             requestOpModeStop();
+            //terminateOpModeNow();
             return;
         }
 
