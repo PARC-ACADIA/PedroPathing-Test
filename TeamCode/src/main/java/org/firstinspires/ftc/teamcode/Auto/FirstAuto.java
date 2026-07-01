@@ -50,6 +50,7 @@ public class FirstAuto extends LinearOpMode {
         waitForStart();
 
         if (isStopRequested()) return;
+        //ok
 
         Scorepath1 = follower.pathBuilder()
                 .addPath(
