@@ -14,14 +14,13 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
-@Configurable
 public class Intake {
     public static double intakePower = 1;
     public static double reversePower = 1;
     private static MotorEx motor;
 
     public Intake(OpMode opMode){
-        motor = new MotorEx(opMode.hardwareMap, "intake", Motor.GoBILDA.RPM_1150);
+        motor = new MotorEx(opMode.hardwareMap, "IntakeMotor", Motor.GoBILDA.RPM_1150);
         motor.setZeroPowerBehavior(MotorEx.ZeroPowerBehavior.BRAKE);
         motor.setRunMode(Motor.RunMode.RawPower);
     }
