@@ -1,5 +1,4 @@
 package org.firstinspires.ftc.teamcode.Auto;
-import org.firstinspires.ftc.teamcode.subsystems.Intake;
 
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
@@ -16,7 +15,6 @@ import com.pedropathing.geometry.BezierLine;
 
 import com.pedropathing.ivy.Command;
 import com.pedropathing.ivy.Scheduler;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import static com.pedropathing.ivy.Scheduler.schedule;
 import static com.pedropathing.ivy.commands.Commands.*;
@@ -27,20 +25,16 @@ import static com.pedropathing.ivy.pedro.PedroCommands.*;
 @Autonomous(name = "FirstAuto", group = "Autos")
 public class FirstAuto extends LinearOpMode {
     private Follower follower;
-    private PathChain Scorepath1;
-    private PathChain Scorepath2;
-    private PathChain returnPath;
+    private PathChain Scorepath1, Scorepath2, Scorepath3, Scorepath4, returnPath;
     public static final Pose startPose = new Pose(9, 31, 0);
-    public static double goalposeX = 70.0;
-    public static double goalposeY = 62.0;
-    public static double ControlX = 30.0;
-    public static double ControlY = 50.0;
-    public static double firstT = 0.3;
-    public static double firstAngle = 30.0;
-    public static double secondT = 0.5;
-    public static double spitT = 0.9;
-
-    public static double intake1T = 0.5;
+    private static double goalposeX = 70.0;
+    private static double goalposeY = 62.0;
+    private static double ControlX = 30.0;
+    private static double ControlY = 50.0;
+    private static double firstT = 0.3;
+    private static double firstAngle = 30.0;
+    private static double secondT = 0.5;
+    private static double spitT = 0.9;
     private static MotorEx motor;
 
     @Override
@@ -49,7 +43,6 @@ public class FirstAuto extends LinearOpMode {
         motor.setZeroPowerBehavior(MotorEx.ZeroPowerBehavior.BRAKE);
         motor.setRunMode(Motor.RunMode.RawPower);
 
-        follower = Constants.createFollower(hardwareMap);
         Scheduler.reset();
 
         follower = Constants.createFollower(hardwareMap);
@@ -94,32 +87,106 @@ public class FirstAuto extends LinearOpMode {
                 .addPath(
                         new BezierCurve(
                                 new Pose(70.000, 62.000),
-                                new Pose(80.000, -10.000),
-                                new Pose(15.000, 0.000),
+                                new Pose(75.000, 13.000),
+                                new Pose(48.000, 13.000)
+                        )
+                )
+                .setConstantHeadingInterpolation(Math.toRadians(90))
+
+                .addPath(
+                        new BezierCurve(
+                                new Pose(48.000, 13.000),
+                                new Pose(40.000, 30.000),
                                 new Pose(70.000, 62.000)
                         )
                 )
-                .setConstantHeadingInterpolation(Math.toRadians(90)
-                ).addParametricCallback(intake1T, this::intake)
+                .setConstantHeadingInterpolation(Math.toRadians(90))
                 .addParametricCallback(0.9, this::reverse)
+                .build();
+
+        Scorepath3 = follower.pathBuilder()
+                .addPath(
+                        new BezierCurve(
+                                new Pose(70.000, 62.000),
+                                new Pose(64.000, 10.000),
+                                new Pose(93.000, 13.000)
+                        )
+                )
+                .setConstantHeadingInterpolation(Math.toRadians(90))
+                .addPath(
+                        new BezierCurve(
+                                new Pose(93.000, 13.000),
+                                new Pose(100.000, 30.000),
+                                new Pose(70.000, 62.000)
+                        )
+                )
+                .setConstantHeadingInterpolation(Math.toRadians(90))
+                .addParametricCallback(0.9, this::reverse)
+                .build();
+
+        Scorepath4 = follower.pathBuilder()
+                .addPath(
+                        new BezierLine(
+                                new Pose(70.000, 62.000),
+                                new Pose(105.000, 48.000)
+                        )
+                )
+                .setHeadingInterpolation(
+                        HeadingInterpolator.piecewise(
+                                new HeadingInterpolator.PiecewiseNode(
+                                        0, 0.5,
+                                        HeadingInterpolator.linear(Math.toRadians(90),Math.toRadians(-22))
+                                ),
+
+                                new HeadingInterpolator.PiecewiseNode(
+                                        0.5, 1,
+                                        HeadingInterpolator.constant(Math.toRadians(-22))
+                                )))
+                .addPath(
+                        new BezierLine(
+                                new Pose(105.000, 45.000),
+                                new Pose(70.000, 62.000)
+                        )
+                )
+                .setHeadingInterpolation(
+                        HeadingInterpolator.piecewise(
+                                new HeadingInterpolator.PiecewiseNode(
+                                        0, 0.5,
+                                        HeadingInterpolator.linear(Math.toRadians(-22),Math.toRadians(90))
+                                ),
+
+                                new HeadingInterpolator.PiecewiseNode(
+                                        0.5, 1,
+                                        HeadingInterpolator.constant(Math.toRadians(90))
+                                )))
+                .addParametricCallback(0.9, this::reverse)
+                .build();
+
+        returnPath = follower.pathBuilder()
+                .addPath(
+                        new BezierLine(
+                                new Pose(70.000, 62.000),
+                                startPose
+                        )
+                )
+                .setLinearHeadingInterpolation(follower.getHeading(), startPose.getHeading())
                 .build();
 
         Command auto = sequential(
                 // race() finishes as soon as the FIRST command finishes.
                 // follow() finishes when the path is complete, so intakeSpin
                 // gets cancelled (and its setEnd stops the motor) at that
-               parallel( // exact moment automatically.
-                follow(follower, Scorepath1),
-                instant(this::intake)),
+               parallel(follow(follower, Scorepath1), instant(this::intake)),
+                parallel(follow(follower, Scorepath2), instant(this::intake)),
+                parallel(follow(follower, Scorepath3), instant(this::intake)),
+                parallel(follow(follower, Scorepath4), instant(this::intake)),
+                parallel(follow(follower, returnPath),instant(this::stopI))
 
-                parallel( // exact moment automatically.
-                        follow(follower, Scorepath2),
-                        instant(this::stopI)),
-                instant(this::requestOpModeStop)
 
         );
 
         schedule(auto);
+
         while (opModeIsActive() && !isStopRequested()) {
             follower.update();
             Scheduler.execute();
