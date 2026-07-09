@@ -15,14 +15,13 @@ import com.pedropathing.geometry.BezierLine;
 
 import com.pedropathing.ivy.Command;
 import com.pedropathing.ivy.Scheduler;
-
 import static com.pedropathing.ivy.Scheduler.schedule;
 import static com.pedropathing.ivy.commands.Commands.*;
 import static com.pedropathing.ivy.groups.Groups.*;
 import static com.pedropathing.ivy.pedro.PedroCommands.*;
 
 @Configurable
-@Autonomous(name = "FirstAuto", group = "Autos")
+@Autonomous(name = "Ball Auto", group = "Autos")
 public class FirstAuto extends LinearOpMode {
     private Follower follower;
     private PathChain Scorepath1, Scorepath2, Scorepath3, Scorepath4, returnPath;
@@ -51,7 +50,6 @@ public class FirstAuto extends LinearOpMode {
         waitForStart();
 
         if (isStopRequested()) return;
-        //ok
 
         Scorepath1 = follower.pathBuilder()
                 .addPath(
@@ -88,15 +86,15 @@ public class FirstAuto extends LinearOpMode {
                         new BezierCurve(
                                 new Pose(70.000, 62.000),
                                 new Pose(75.000, 13.000),
-                                new Pose(48.000, 13.000)
+                                new Pose(51.000, 13.000)
                         )
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(90))
 
                 .addPath(
                         new BezierCurve(
-                                new Pose(48.000, 13.000),
-                                new Pose(40.000, 30.000),
+                                new Pose(51.000, 13.000),
+                                new Pose(42.000, 30.000),
                                 new Pose(70.000, 62.000)
                         )
                 )
@@ -108,15 +106,16 @@ public class FirstAuto extends LinearOpMode {
                 .addPath(
                         new BezierCurve(
                                 new Pose(70.000, 62.000),
-                                new Pose(64.000, 10.000),
-                                new Pose(93.000, 13.000)
+                                new Pose(63.000, 10.000),
+                                new Pose(90.000, 13.000)
                         )
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(90))
                 .addPath(
                         new BezierCurve(
-                                new Pose(93.000, 13.000),
-                                new Pose(100.000, 30.000),
+                                new Pose(90.000, 13.000),
+                                new Pose(96.000, 30.000),
+                                new Pose(80.000, 40.000),
                                 new Pose(70.000, 62.000)
                         )
                 )
@@ -128,7 +127,7 @@ public class FirstAuto extends LinearOpMode {
                 .addPath(
                         new BezierLine(
                                 new Pose(70.000, 62.000),
-                                new Pose(105.000, 48.000)
+                                new Pose(105.000, 47.000)
                         )
                 )
                 .setHeadingInterpolation(
@@ -137,14 +136,13 @@ public class FirstAuto extends LinearOpMode {
                                         0, 0.5,
                                         HeadingInterpolator.linear(Math.toRadians(90),Math.toRadians(-22))
                                 ),
-
                                 new HeadingInterpolator.PiecewiseNode(
                                         0.5, 1,
                                         HeadingInterpolator.constant(Math.toRadians(-22))
                                 )))
                 .addPath(
                         new BezierLine(
-                                new Pose(105.000, 45.000),
+                                new Pose(105.000, 47.000),
                                 new Pose(70.000, 62.000)
                         )
                 )
@@ -154,7 +152,6 @@ public class FirstAuto extends LinearOpMode {
                                         0, 0.5,
                                         HeadingInterpolator.linear(Math.toRadians(-22),Math.toRadians(90))
                                 ),
-
                                 new HeadingInterpolator.PiecewiseNode(
                                         0.5, 1,
                                         HeadingInterpolator.constant(Math.toRadians(90))
@@ -169,7 +166,16 @@ public class FirstAuto extends LinearOpMode {
                                 startPose
                         )
                 )
-                .setLinearHeadingInterpolation(follower.getHeading(), startPose.getHeading())
+                .setHeadingInterpolation(
+                        HeadingInterpolator.piecewise(
+                                new HeadingInterpolator.PiecewiseNode(
+                                        0, 0.2,
+                                        HeadingInterpolator.constant(Math.toRadians(90))
+                                ),
+                                new HeadingInterpolator.PiecewiseNode(
+                                        0.2, 1,
+                                        HeadingInterpolator.linear(Math.toRadians(90), startPose.getHeading())
+                                )))
                 .build();
 
         Command auto = sequential(
@@ -180,9 +186,8 @@ public class FirstAuto extends LinearOpMode {
                 parallel(follow(follower, Scorepath2), instant(this::intake)),
                 parallel(follow(follower, Scorepath3), instant(this::intake)),
                 parallel(follow(follower, Scorepath4), instant(this::intake)),
-                parallel(follow(follower, returnPath),instant(this::stopI))
-
-
+                parallel(follow(follower, returnPath),instant(this::stopI)),
+                instant(this::requestOpModeStop)
         );
 
         schedule(auto);
