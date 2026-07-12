@@ -52,7 +52,7 @@ public class Vision {
     // adjusting this constant until getClosestBall().distanceIn matches
     // your tape measurement. Small angle errors cause large distance errors,
     // so this calibration step matters more than a precise protractor reading.
-    public static double CAMERA_MOUNT_ANGLE_DEG = 20.0; // <-- calibrate
+    public static double CAMERA_MOUNT_ANGLE_DEG = 9.0; // <-- calibrate
 
     // Height of a pickleball's CENTER off the floor, in inches
     // (roughly its own radius, since it's resting on the ground —
@@ -72,8 +72,8 @@ public class Vision {
     // distance, then compares real area against that prediction — this is
     // more accurate than a single fixed area% cutoff, since a lone ball
     // close-up and a clump far away can otherwise look similar in size.
-    public static double SINGLE_BALL_REF_DISTANCE_IN = 12.0; // <-- calibrate
-    public static  double SINGLE_BALL_REF_AREA_PERCENT = 4.0; // <-- calibrate
+    public static double SINGLE_BALL_REF_DISTANCE_IN = 17.0; // <-- calibrate
+    public static  double SINGLE_BALL_REF_AREA_PERCENT = 0.8; // <-- calibrate
 
     // How much bigger than "expected single ball" something has to be
     // before it's classified as a clump rather than measurement noise.
@@ -120,7 +120,7 @@ public class Vision {
             // Skip anything too small to plausibly be a real ball — this is
             // what stops noise specks from winning getClosestBall() via a
             // deceptively short trig-computed distance. See MIN_VALID_AREA_PERCENT.
-            if (target.getTargetArea() < MIN_VALID_AREA_PERCENT) {continue;}
+            if (target.getTargetArea()*100 < MIN_VALID_AREA_PERCENT) {continue;}
             cachedBalls.add(parseBall(target));
         }
     }
@@ -214,7 +214,7 @@ public class Vision {
     private Ball parseBall(ColorResult target) {
         double bearingDeg = target.getTargetXDegrees() + CAMERA_MOUNT_YAW_OFFSET_DEG;
         double elevationDeg = target.getTargetYDegrees();
-        double areaPercent = target.getTargetArea();
+        double areaPercent = target.getTargetArea() * 100; //software glitch dowsnt return it as a percent, so multiplying by 100
 
         double distanceIn = computeFloorDistance(elevationDeg);
         double expectedSingleBallArea = expectedAreaAtDistance(distanceIn);
@@ -236,7 +236,7 @@ public class Vision {
      * big the target looks, only where it sits vertically in the frame.
      */
     private double computeFloorDistance(double elevationDeg) {
-        double angleToTargetDeg = CAMERA_MOUNT_ANGLE_DEG + elevationDeg;
+        double angleToTargetDeg = -CAMERA_MOUNT_ANGLE_DEG + elevationDeg;
         double angleToTargetRad = Math.toRadians(angleToTargetDeg);
         double tan = Math.tan(angleToTargetRad);
 

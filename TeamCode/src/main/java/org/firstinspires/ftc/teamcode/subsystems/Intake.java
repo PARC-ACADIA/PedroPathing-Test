@@ -4,7 +4,7 @@ import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 public class Intake {
     public static double intakePower = 1;
-    public static double reversePower = 1;
+    public static double reversePower = -1;
     public static MotorEx motor;
 
     public Intake(OpMode opMode){
