@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.TeleOp;
 import static java.lang.Math.abs;
-
+import org.firstinspires.ftc.teamcode.subsystems.AprilTagLimelight;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
@@ -12,6 +12,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +22,7 @@ public class MainTeleOp extends LinearOpMode {
 
     public static double Mode = 1;
 
+    public static double SF = -0.025;
     public static double start = 0.2;
 
     public static double end = 0.4;
@@ -30,6 +32,8 @@ public class MainTeleOp extends LinearOpMode {
     public MotorEx bl, br, fl, fr;
 
     public void runOpMode() throws InterruptedException{
+        AprilTagLimelight a = new AprilTagLimelight(hardwareMap, "limelight", 2);
+        Servo servo = hardwareMap.get(Servo.class, "servo");
         intake = new Intake(this);
         gp1 = new GamepadEx(gamepad1);
         waitForStart();
@@ -51,6 +55,8 @@ public class MainTeleOp extends LinearOpMode {
 
 
         while (opModeIsActive()) {
+            a.update();
+            servo.setPosition(0.08);
             gp1.readButtons();
             if (gp1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0.1){
                 intake.intake();
@@ -63,8 +69,8 @@ public class MainTeleOp extends LinearOpMode {
             else{
                 intake.stop();
             }
-
-            drive();
+            double correction = SF * a.getAngleX(21);
+            drive(correction);
             telemetry.addData("LeftX:", gp1.getLeftX());
             telemetry.addData("LeftY:", gp1.getLeftY());
             telemetry.addData("RightX:", gp1.getRightX());
@@ -147,18 +153,30 @@ public class MainTeleOp extends LinearOpMode {
         double y = (end-start)*x + start;
         return sign * y;
     }
-    public void drive() {
+    public void drive(double correction) {
         ///uncomment all lines to get the exponential scaling
         gp1.readButtons();
+        Vector2d driveVector = new Vector2d(gp1.getLeftX(), gp1.getLeftY());
+        Vector2d turnVector;
+        double a;
+        double b;
         //double trigger = Math.min(driveMult -gp1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER), 1);
-
-        Vector2d driveVector = new Vector2d(gp1.getLeftX(), gp1.getLeftY()),
-                turnVector = new Vector2d(-gp1.getRightX(), 0);
+        //AprilTag Facing Function:
+        if(gp1.isDown(GamepadKeys.Button.LEFT_BUMPER) && abs(gp1.getRightX())<0.1){
+            turnVector = new Vector2d(correction, 0);
+             a = correction;
+             b = correction;
+        }
+        else {
+            turnVector = new Vector2d(-gp1.getRightX(), 0);
+            a = LinearSpeed(turnVector.getX());
+            b = turnVector.getX();
+        }
         if (gp1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER)>0.1 /*&& Mode == 1*/){
-            driveRobotCentric(LinearSpeed(driveVector.getX()) , LinearSpeed(driveVector.getY()), LinearSpeed(turnVector.getX()) );
+            driveRobotCentric(LinearSpeed(driveVector.getX()) , LinearSpeed(driveVector.getY()), a);
         }
         else /*if (gp1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER)<0.1 && Mode == 1)*/{
-            driveRobotCentric(driveVector.getX() , driveVector.getY(), turnVector.getX());
+            driveRobotCentric(driveVector.getX() , driveVector.getY(), b );
         }
 /*
         else{

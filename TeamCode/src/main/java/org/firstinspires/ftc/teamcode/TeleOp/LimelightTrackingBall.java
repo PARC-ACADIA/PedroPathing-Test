@@ -8,7 +8,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Vision;
 
 @Configurable
 @TeleOp(name = "Limelight Tracking", group = "Vision")
-public class LimelightTracking extends LinearOpMode {
+public class LimelightTrackingBall extends LinearOpMode {
 
     public static double Pos = 0.08;
     @Override
@@ -27,6 +27,7 @@ public class LimelightTracking extends LinearOpMode {
             vision.update();                       // call ONCE per loop
             Vision.Ball ball = vision.getLargestBall();
             if (ball != null) {
+                telemetry.addLine("Ball:");
                 telemetry.addData("Bearing", ball.bearingDeg);
                 telemetry.addData("Distance", ball.distanceIn);
                 telemetry.addData("Area", ball.areaPercent);
