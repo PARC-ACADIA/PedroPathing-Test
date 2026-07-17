@@ -23,7 +23,7 @@ public class MainTeleOp extends LinearOpMode {
     public static double Mode = 1;
 
     public static double SF = -0.025;
-    public static double start = 0.2;
+    public static double start = 0.1;
 
     public static double end = 0.4;
     //public static double driveMult = 1;
@@ -36,7 +36,7 @@ public class MainTeleOp extends LinearOpMode {
         Servo servo = hardwareMap.get(Servo.class, "servo");
         intake = new Intake(this);
         gp1 = new GamepadEx(gamepad1);
-        waitForStart();
+
         fl = new MotorEx(this.hardwareMap, "LFD",Motor.GoBILDA.RPM_312);
         fr = new MotorEx(this.hardwareMap, "RFD", Motor.GoBILDA.RPM_312);
         bl = new MotorEx(this.hardwareMap, "LBD", Motor.GoBILDA.RPM_312);
@@ -52,6 +52,8 @@ public class MainTeleOp extends LinearOpMode {
         fr.setRunMode(Motor.RunMode.RawPower);
         bl.setRunMode(Motor.RunMode.RawPower);
         br.setRunMode(Motor.RunMode.RawPower);
+
+        waitForStart();
 
 
         while (opModeIsActive()) {
@@ -89,7 +91,7 @@ public class MainTeleOp extends LinearOpMode {
         };
         double maxSpeed = 0;
         for (int i = 0; i < 4; i++) {
-            maxSpeed = Math.max(maxSpeed, speeds[i]);
+            maxSpeed = Math.max(maxSpeed, abs(speeds[i]));
         }
         if (maxSpeed > 1) {
             for (int i = 0; i < 4; i++) {
@@ -150,33 +152,31 @@ public class MainTeleOp extends LinearOpMode {
         double sign = Math.signum(input);
         double x = Math.min(abs(input), 1.0);
 
+        if (x<0.05) return 0.0;//deadzone
+
         double y = (end-start)*x + start;
         return sign * y;
     }
     public void drive(double correction) {
         ///uncomment all lines to get the exponential scaling
         gp1.readButtons();
-        Vector2d driveVector = new Vector2d(gp1.getLeftX(), gp1.getLeftY());
-        Vector2d turnVector;
         double a;
         double b;
         //double trigger = Math.min(driveMult -gp1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER), 1);
         //AprilTag Facing Function:
         if(gp1.isDown(GamepadKeys.Button.LEFT_BUMPER) && abs(gp1.getRightX())<0.1){
-            turnVector = new Vector2d(correction, 0);
              a = correction;
              b = correction;
         }
         else {
-            turnVector = new Vector2d(-gp1.getRightX(), 0);
-            a = LinearSpeed(turnVector.getX());
-            b = turnVector.getX();
+            a = LinearSpeed(-gp1.getRightX());
+            b = -gp1.getRightX();
         }
         if (gp1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER)>0.1 /*&& Mode == 1*/){
-            driveRobotCentric(LinearSpeed(driveVector.getX()) , LinearSpeed(driveVector.getY()), a);
+            driveRobotCentric(LinearSpeed(gp1.getLeftX()) , LinearSpeed(gp1.getLeftY()), a);
         }
         else /*if (gp1.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER)<0.1 && Mode == 1)*/{
-            driveRobotCentric(driveVector.getX() , driveVector.getY(), b );
+            driveRobotCentric(gp1.getLeftX() , gp1.getLeftY(), b );
         }
 /*
         else{

@@ -44,6 +44,7 @@ public class FirstAuto extends LinearOpMode {
         motor.setZeroPowerBehavior(MotorEx.ZeroPowerBehavior.BRAKE);
         motor.setRunMode(Motor.RunMode.RawPower);
 
+
         Scheduler.reset();
 
         follower = Constants.createFollower(hardwareMap);
