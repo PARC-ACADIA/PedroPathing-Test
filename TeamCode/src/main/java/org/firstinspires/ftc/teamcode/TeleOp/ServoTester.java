@@ -10,9 +10,12 @@ import com.qualcomm.robotcore.hardware.Servo;
 @Configurable
 @TeleOp(name = "Servo tester (use Panels)", group = "Tests")
 public class ServoTester extends LinearOpMode {
-    public static double Pos = 0.0;
+    public static double Pos = 0.1;
     //0, is lowest,
     //0.11 is perfect 90 degrees
+    public static double Pos2 = 0.144;
+    //for the 5 turn servo on the claw, use these:
+    //pos = 0.1, pos2 = 0.144
 
 
     private GamepadEx gp1;
@@ -26,6 +29,9 @@ public class ServoTester extends LinearOpMode {
             gp1.readButtons();
             if (gp1.wasJustPressed(GamepadKeys.Button.X)){
                 servo.setPosition(Pos);
+            }
+            if (gp1.wasJustPressed(GamepadKeys.Button.Y)){
+                servo.setPosition(Pos2);
             }
 
             if (gp1.wasJustPressed(GamepadKeys.Button.B)){

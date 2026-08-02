@@ -14,7 +14,9 @@ import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
-
+//Notes:
+//Add a press and hold for headless mode (field centric)
+//if path gets interupped a lot and robot times out (test it) add a retry function.
 @TeleOp(name = "TeleAuto", group = "TeleOp")
 public class TeleAuto extends LinearOpMode {
 
@@ -93,7 +95,7 @@ public class TeleAuto extends LinearOpMode {
                         gp1.getLeftY(),  // Forward / Backward
                         -gp1.getLeftX(),  // Strafe
                         -gp1.getRightX(), // Turn
-                        true              // Robot Centric (false for Field Centric)
+                        true //Have a press and hold button for field centric!!!!!!!!!!             // Robot Centric (false for Field Centric)
                 );}
             }
             if (gp1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0.1){
