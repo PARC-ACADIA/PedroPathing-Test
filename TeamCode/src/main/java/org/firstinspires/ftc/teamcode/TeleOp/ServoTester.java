@@ -3,7 +3,6 @@ import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -16,7 +15,6 @@ public class ServoTester extends LinearOpMode {
     public static double Pos2 = 0.144;
     //for the 5 turn servo on the claw, use these:
     //pos = 0.1, pos2 = 0.144
-
 
     private GamepadEx gp1;
     private Servo servo;

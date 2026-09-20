@@ -58,7 +58,7 @@ public class MainTeleOp extends LinearOpMode {
 
         while (opModeIsActive()) {
             a.update();
-            servo.setPosition(0.08);
+            servo.setPosition(0.15);
             gp1.readButtons();
             if (gp1.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER) > 0.1){
                 intake.intake();

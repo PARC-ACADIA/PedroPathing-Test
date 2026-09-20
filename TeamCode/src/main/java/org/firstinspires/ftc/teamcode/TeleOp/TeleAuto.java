@@ -21,9 +21,9 @@ import org.firstinspires.ftc.teamcode.subsystems.Intake;
 public class TeleAuto extends LinearOpMode {
 
     private Follower follower;
-    public static final Pose startPose = new Pose(9, 31, 0);
+    public static final Pose startPose = new Pose(0, 0, 0);
     private GamepadEx gp1;
-    Pose targetPose = new Pose (70, 62, Math.toRadians(90));
+    Pose targetPose = new Pose (0, 0, 0);
     Intake intake;
     private PathChain GoalPath;
     private boolean isAutomated = false; // Tracks if the robot is currently pathing
